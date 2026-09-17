@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Pre-commit hook: keep the cross-surface artifacts in sync.
+#
+# Enable it once per clone with:
+#     git config core.hooksPath .githooks
+#
+# It runs the bench generator (which also runs the triage-play drift guard),
+# then blocks the commit if the generated specialist bench differs from what is
+# staged/committed.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-commit: python3 not found; skipping sync check." >&2
+  exit 0
+fi
+
+# Runs the triage-play drift guard; exits non-zero on drift.
+python3 scripts/build_project_bench.py
+
+bench="claude-project/knowledge/02-specialist-bench.md"
+if ! git diff --quiet -- "$bench"; then
+  echo "" >&2
+  echo "pre-commit: $bench was regenerated and differs from your version." >&2
+  echo "The specialist bench is stale. Stage the regenerated file:" >&2
+  echo "    git add $bench" >&2
+  echo "and commit again." >&2
+  exit 1
+fi
+
+echo "pre-commit: sync check OK."

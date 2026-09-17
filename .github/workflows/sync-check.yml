@@ -1,0 +1,36 @@
+name: sync-check
+
+# Verifies the two hand-maintained cross-surface artifacts stay consistent:
+#   1. The "Email / inbox triage" play in ciso-chief-of-staff.md and
+#      PROJECT_INSTRUCTIONS.md (drift guard in build_project_bench.py).
+#   2. The generated specialist bench (claude-project/knowledge/02-specialist-
+#      bench.md) matches what the generator produces from .claude/agents/.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Regenerate bench and run triage-play drift guard
+        # Exits non-zero if the triage play has drifted between the two
+        # surfaces. Also (re)writes the bench file so the next step can detect
+        # a stale committed copy.
+        run: python3 scripts/build_project_bench.py
+
+      - name: Verify the committed specialist bench is up to date
+        run: |
+          if ! git diff --exit-code claude-project/knowledge/02-specialist-bench.md; then
+            echo "::error::claude-project/knowledge/02-specialist-bench.md is stale."
+            echo "Run 'python3 scripts/build_project_bench.py' and commit the result."
+            exit 1
+          fi
