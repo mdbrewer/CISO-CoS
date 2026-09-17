@@ -1,9 +1,9 @@
 # CISO CoS: Chief of Staff & Specialist Bench
 
-A modular AI operating system for a world-class CISO. A **Chief of Staff** agent
-is the single point of interaction; behind it sits an expandable bench of
-**21 specialist sub-agents**, each an expert in a subset of the CISO role. The
-Chief of Staff triages your requests, delegates to the right specialists,
+A modular AI operating system for a world-class CISO. A **Chief of Staff**
+agent, **Hank**, is the single point of interaction; behind it sits an
+expandable bench of **21 specialist sub-agents**, each an expert in a subset of
+the CISO role. Hank triages your requests, delegates to the right specialists,
 synthesizes their work into one executive-ready answer, and creates or tunes
 specialists as your needs evolve.
 
